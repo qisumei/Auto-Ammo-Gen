@@ -167,7 +167,7 @@ public final class GeneratedPacks {
 
         JsonArray results = new JsonArray();
         JsonObject fluid = new JsonObject();
-        fluid.addProperty("fluid", QISAmmoMod.MODID + ":gunpowder");
+        fluid.addProperty("id", QISAmmoMod.MODID + ":gunpowder");
         fluid.addProperty("amount", GunpowderFluids.MB_PER_GUNPOWDER);
         results.add(fluid);
         mixing.add("results", results);
@@ -216,8 +216,9 @@ public final class GeneratedPacks {
         base.addProperty("item", itemName);
         ingredients.add(base);
         JsonObject fluid = new JsonObject();
-        fluid.addProperty("fluid", QISAmmoMod.MODID + ":gunpowder");
+        fluid.addProperty("type", "neoforge:single");
         fluid.addProperty("amount", amount);
+        fluid.addProperty("fluid", QISAmmoMod.MODID + ":gunpowder");
         ingredients.add(fluid);
         step.add("ingredients", ingredients);
         JsonArray results = new JsonArray();
