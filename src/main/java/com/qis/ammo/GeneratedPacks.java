@@ -51,6 +51,10 @@ public final class GeneratedPacks {
             Files.createDirectories(resourcepackDir());
             writeMeta(datapackDir(), DATAPACK_FORMAT);
             writeMeta(resourcepackDir(), RESOURCEPACK_FORMAT);
+            boolean canCreate = net.neoforged.fml.ModList.get().isLoaded("create");
+            if (canCreate) {
+                writeGunpowderMixing();
+            }
             for (AmmoData ammo : AmmoScanner.getAmmos()) {
                 if (canRecipes) {
                     writeStampRecipe(ammo);
@@ -111,6 +115,10 @@ public final class GeneratedPacks {
             if (material.isCopperCasing()) {
                 continue;
             }
+            if (material.isGunpowder()) {
+                sequence.add(fillStep(incompleteItem, material.count() * GunpowderFluids.MB_PER_GUNPOWDER));
+                continue;
+            }
             for (int i = 0; i < material.count(); i++) {
                 sequence.add(deployStep(incompleteItem, material.itemSpec()));
             }
@@ -144,6 +152,29 @@ public final class GeneratedPacks {
         writeJson(recipeDir.resolve("stamp_" + path + ".json"), recipe);
     }
 
+    private static void writeGunpowderMixing() throws IOException {
+        Path recipeDir = datapackDir().resolve("data/create/recipe/qisammo");
+        Files.createDirectories(recipeDir);
+
+        JsonObject mixing = new JsonObject();
+        mixing.addProperty("type", "create:mixing");
+
+        JsonArray ingredients = new JsonArray();
+        JsonObject item = new JsonObject();
+        item.addProperty("item", "minecraft:gunpowder");
+        ingredients.add(item);
+        mixing.add("ingredients", ingredients);
+
+        JsonArray results = new JsonArray();
+        JsonObject fluid = new JsonObject();
+        fluid.addProperty("fluid", QISAmmoMod.MODID + ":gunpowder");
+        fluid.addProperty("amount", GunpowderFluids.MB_PER_GUNPOWDER);
+        results.add(fluid);
+        mixing.add("results", results);
+
+        writeJson(recipeDir.resolve("gunpowder_from_mixing.json"), mixing);
+    }
+
     private static JsonObject machineStep(String type, String itemName) {
         JsonObject step = new JsonObject();
         step.addProperty("type", type);
@@ -168,6 +199,26 @@ public final class GeneratedPacks {
         base.addProperty("item", itemName);
         ingredients.add(base);
         ingredients.add(appliedItem);
+        step.add("ingredients", ingredients);
+        JsonArray results = new JsonArray();
+        JsonObject out = new JsonObject();
+        out.addProperty("id", itemName);
+        results.add(out);
+        step.add("results", results);
+        return step;
+    }
+
+    private static JsonObject fillStep(String itemName, int amount) {
+        JsonObject step = new JsonObject();
+        step.addProperty("type", "create:filling");
+        JsonArray ingredients = new JsonArray();
+        JsonObject base = new JsonObject();
+        base.addProperty("item", itemName);
+        ingredients.add(base);
+        JsonObject fluid = new JsonObject();
+        fluid.addProperty("fluid", QISAmmoMod.MODID + ":gunpowder");
+        fluid.addProperty("amount", amount);
+        ingredients.add(fluid);
         step.add("ingredients", ingredients);
         JsonArray results = new JsonArray();
         JsonObject out = new JsonObject();

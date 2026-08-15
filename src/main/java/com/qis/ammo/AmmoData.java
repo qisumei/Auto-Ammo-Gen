@@ -22,6 +22,19 @@ public record AmmoData(String id, String namespace, String path, int resultCount
             return false;
         }
 
+        public boolean isGunpowder() {
+            if (item == null) {
+                return false;
+            }
+            if (item.has("tag")) {
+                return item.get("tag").getAsString().contains("gunpowder");
+            }
+            if (item.has("item")) {
+                return "minecraft:gunpowder".equals(item.get("item").getAsString());
+            }
+            return false;
+        }
+
         public JsonObject itemSpec() {
             return item.deepCopy();
         }

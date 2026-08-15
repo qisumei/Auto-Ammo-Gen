@@ -1,4 +1,5 @@
 {
   "itemGroup.qisammo": "QIS 弹药",
-  "item.qisammo.incomplete_ammo": "未完成弹药"
+  "item.qisammo.incomplete_ammo": "未完成弹药",
+  "fluid_type.qisammo.gunpowder": "火药粉末"
 }

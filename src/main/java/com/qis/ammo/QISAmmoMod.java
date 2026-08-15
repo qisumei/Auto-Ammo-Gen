@@ -24,8 +24,12 @@ public final class QISAmmoMod {
     public QISAmmoMod(IEventBus modEventBus) {
         AmmoScanner.scanAndGenerate();
 
+        GunpowderFluids.register(modEventBus);
         modEventBus.addListener(this::registerItems);
         modEventBus.addListener(PackFinders::onAddPackFinders);
+        if (net.neoforged.fml.loading.FMLEnvironment.dist.isClient()) {
+            modEventBus.addListener(GunpowderFluidClient::onRegisterExtensions);
+        }
 
         NeoForge.EVENT_BUS.addListener(RefreshCommand::register);
     }
