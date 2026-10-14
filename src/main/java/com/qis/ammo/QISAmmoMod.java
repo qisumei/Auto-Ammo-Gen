@@ -162,6 +162,7 @@ public final class QISAmmoMod {
                     return new ItemStack(stamp == Items.AIR ? Items.BARRIER : stamp);
                 })
                 .displayItems((params, output) -> {
+                    output.accept(GunpowderFluids.GUNPOWDER_BUCKET.get());
                     for (AmmoData ammo : AmmoScanner.getAmmos()) {
                         String path = AmmoData.sanitize(ammo.path());
                         Item stamp = item("stamp_" + path);

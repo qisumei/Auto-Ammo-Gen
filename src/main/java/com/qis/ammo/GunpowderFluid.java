@@ -2,18 +2,18 @@ package com.qis.ammo;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.tags.FluidTags;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.block.LiquidBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.material.FlowingFluid;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
-import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.fluids.FluidType;
 
 public abstract class GunpowderFluid extends FlowingFluid {
@@ -35,18 +35,24 @@ public abstract class GunpowderFluid extends FlowingFluid {
 
     @Override
     public Item getBucket() {
-        return Items.AIR;
+        return GunpowderFluids.GUNPOWDER_BUCKET.get();
     }
 
+    /**
+     * 与原版水一致：只允许「从上方落下」的非水液体替换自己。
+     *
+     * <p>注意 {@code Fluid#canBeReplacedWith} 是抽象方法，{@code FlowingFluid} 并没有给出默认实现
+     * （只有 {@code WaterFluid}/{@code LavaFluid} 各自实现了），所以这里不能直接删掉，必须照抄默认语义。
+     * 之前恒返回 {@code false}，会让水等液体永远无法替换火药流体。
+     */
     @Override
     protected boolean canBeReplacedWith(FluidState state, BlockGetter level, BlockPos pos, Fluid fluid, Direction direction) {
-        return false;
+        return direction == Direction.DOWN && !fluid.is(FluidTags.WATER);
     }
 
-    @Override
-    public Vec3 getFlow(BlockGetter level, BlockPos pos, FluidState state) {
-        return Vec3.ZERO;
-    }
+    // 不覆写 getFlow()：FlowingFluid 的默认实现会按相邻液面算出流向，
+    // 既让流动贴图有方向/滚动动画，也让实体被水流推动。
+    // 原先恒返回 Vec3.ZERO 会把这两件事一起关掉。
 
     @Override
     public int getTickDelay(LevelReader level) {
@@ -60,7 +66,10 @@ public abstract class GunpowderFluid extends FlowingFluid {
 
     @Override
     protected BlockState createLegacyBlock(FluidState state) {
-        return GunpowderFluids.GUNPOWDER_BLOCK.get().defaultBlockState();
+        // 必须把流体等级写进方块 LEVEL，否则 LiquidBlock.getFluidState 永远按 LEVEL=0 回读成
+        // 源头状态：世界里只会出现 8 格高的源头、流动贴图/流动等级永不生效，而且可能无限蔓延。
+        return GunpowderFluids.GUNPOWDER_BLOCK.get().defaultBlockState()
+                .setValue(LiquidBlock.LEVEL, getLegacyLevel(state));
     }
 
     @Override

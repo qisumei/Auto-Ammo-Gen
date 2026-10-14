@@ -1,5 +1,7 @@
 {
   "itemGroup.qisammo": "QIS Ammo",
   "item.qisammo.incomplete_ammo": "Incomplete Ammo",
-  "fluid_type.qisammo.gunpowder": "Gunpowder Powder"
+  "item.qisammo.gunpowder_bucket": "Gunpowder Bucket",
+  "block.qisammo.gunpowder": "Gunpowder",
+  "fluid_type.qisammo.gunpowder": "Gunpowder"
 }
